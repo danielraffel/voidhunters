@@ -498,6 +498,12 @@
             z-index: 40;
         }
 
+        @media (max-width: 900px), (pointer: coarse), (hover: none) {
+            #powerup-indicator {
+                display: none;
+            }
+        }
+
         .powerup-icon {
             width: 26px;
             height: 26px;
@@ -602,6 +608,25 @@
         #bomb-btn {
             width: 60px;
             height: 60px;
+            font-size: 1.4rem;
+            position: relative;
+        }
+
+        #bomb-count {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            background: var(--neon-red);
+            color: var(--dark-bg);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* Mobile Pause Button */
@@ -734,7 +759,7 @@
                 <button class="touch-btn" id="right-btn">►</button>
             </div>
             <div class="action-controls">
-                <button class="touch-btn" id="bomb-btn">💥</button>
+                <button class="touch-btn" id="bomb-btn">💥<span id="bomb-count">3</span></button>
                 <button class="touch-btn" id="fire-btn">●</button>
             </div>
         </div>
@@ -2058,6 +2083,12 @@
         function updatePowerupIndicator() {
             const container = document.getElementById('powerup-indicator');
             container.innerHTML = '';
+
+            // Update mobile bomb count
+            const bombCountEl = document.getElementById('bomb-count');
+            if (bombCountEl) {
+                bombCountEl.textContent = bombs;
+            }
 
             Object.entries(POWERUPS).forEach(([key, config]) => {
                 if (key === 'SHIELD') return; // Shield is instant
