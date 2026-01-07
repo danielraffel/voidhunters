@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VOID HUNTERS</title>
+    <meta name="description" content="A neon-soaked arcade space shooter. Blast through waves of enemies, collect power-ups, and face epic bosses.">
+    
+    <!-- Open Graph (iMessage, Slack, Discord, etc.) -->
+    <meta property="og:title" content="VOID HUNTERS">
+    <meta property="og:description" content="A neon-soaked arcade space shooter. Blast through waves of enemies, collect power-ups, and face epic bosses.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VOID HUNTERS">
+    <meta name="twitter:description" content="A neon-soaked arcade space shooter. Blast through waves of enemies, collect power-ups, and face epic bosses.">
+    <meta name="twitter:image" content="image.png">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -113,17 +129,40 @@
 
         /* UI Screens */
         .screen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            z-index: 50;
+            z-index: 150;
             color: var(--neon-cyan);
+            background: var(--darker-bg);
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         .screen.hidden {
             display: none;
+        }
+
+        .screen > * {
+            max-width: 600px;
+        }
+
+        /* Title and scores show stars behind */
+        #title-screen,
+        #scores-screen {
+            background: transparent;
+        }
+
+        /* Game over needs solid bg to hide game */
+        #gameover-screen {
+            background: var(--darker-bg);
         }
 
         #title-screen h1 {
@@ -203,7 +242,7 @@
 
         #hud {
             position: absolute;
-            top: 0;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             width: 800px;
@@ -220,7 +259,7 @@
         @media (max-width: 900px), (pointer: coarse), (hover: none) {
             #hud {
                 position: fixed;
-                top: 0;
+                top: 5px;
                 padding: 5px 10px;
                 font-size: 0.85rem;
             }
@@ -389,10 +428,15 @@
 
         /* Pause Screen */
         #pause-screen {
-            background: rgba(10, 10, 15, 0.9);
+            background: rgba(5, 5, 8, 0.95);
+        }
+
+        #pause-screen > div {
+            background: rgba(10, 10, 15, 0.95);
             padding: 3em;
             border: 2px solid var(--neon-cyan);
             box-shadow: 0 0 40px var(--neon-cyan);
+            border-radius: 8px;
         }
 
         #pause-screen h2 {
@@ -446,24 +490,25 @@
         /* Power-up Indicator */
         #powerup-indicator {
             position: absolute;
-            bottom: 60px;
+            top: 90px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             z-index: 40;
         }
 
         .powerup-icon {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             border: 2px solid;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             opacity: 0.3;
             transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .powerup-icon.active {
@@ -654,9 +699,11 @@
 
         <!-- Pause Screen -->
         <div id="pause-screen" class="screen hidden">
-            <h2>PAUSED</h2>
-            <button class="menu-item" id="resume-btn">RESUME</button>
-            <button class="menu-item" id="quit-btn">QUIT TO TITLE</button>
+            <div>
+                <h2>PAUSED</h2>
+                <button class="menu-item" id="resume-btn">RESUME</button>
+                <button class="menu-item" id="quit-btn">QUIT TO TITLE</button>
+            </div>
         </div>
 
         <!-- Game Over Screen -->
@@ -2179,11 +2226,9 @@
                         const x = startX + col * 60;
                         const y = startY + row * 50;
 
-                        // Spawn with delay for effect
+                        // Spawn with delay for effect (spawns even while paused, they just won't move)
                         setTimeout(() => {
-                            if (state === GameState.PLAYING) {
-                                enemies.push(new Enemy(x, y, type));
-                            }
+                            enemies.push(new Enemy(x, y, type));
                             spawnedCount++;
                             if (spawnedCount >= totalEnemies) {
                                 waveSpawning = false;
@@ -2196,6 +2241,7 @@
 
         function checkWaveComplete() {
             if (waveSpawning) return;
+            if (state !== GameState.PLAYING) return;
             
             if (enemies.length === 0 && !boss) {
                 waveSpawning = true;
@@ -2204,9 +2250,7 @@
 
                 // Brief pause before next wave
                 setTimeout(() => {
-                    if (state === GameState.PLAYING) {
-                        spawnWave(wave);
-                    }
+                    spawnWave(wave);
                 }, 1500);
             }
         }
